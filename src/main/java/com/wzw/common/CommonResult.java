@@ -1,5 +1,6 @@
 package com.wzw.common;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -68,11 +69,11 @@ public class CommonResult<T>
         return result;
     }
 
-    public static CommonResult errorMsg(String msg)
+    public static CommonResult errorMsg(CharSequence template, Object... params)
     {
         CommonResult<Object> result = new CommonResult<>();
         result.success = false;
-        result.msg = msg;
+        result.msg = StrUtil.format(template, params);
         return result;
     }
 }
