@@ -1,5 +1,6 @@
 package com.wzw.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.unit.DataUnit;
 import cn.hutool.core.lang.Console;
@@ -38,6 +39,7 @@ public class FunService
         }
 
         // ②读取excel中的数据
+        List<ExcelDataItem> dataList = CollUtil.newArrayList();
         EasyExcel.read
         (
             inputStream,
@@ -47,16 +49,17 @@ public class FunService
                 @Override
                 public void invoke(ExcelDataItem data, AnalysisContext context)
                 {
-                    Console.log("{} 被调用 data:{} context:{}", DateUtil.date(), data, context);
+                    dataList.add(data);
                 }
 
                 @Override
                 public void doAfterAllAnalysed(AnalysisContext context)
                 {
-
                 }
             }
         ).sheet().doRead();
+        Console.log("获得到数据：");
+        dataList.forEach(Console::log);
 
         // ③关闭输入流
         if (Objects.nonNull(inputStream))
