@@ -4,47 +4,67 @@ $
 (
     function()
     {
-        // drawUp();
+        submitBtnBind()
     }
 );
 
 
-
-function getData()
+/**
+ * 提交按钮绑定事件
+ */
+function submitBtnBind()
 {
-    $.ajax
+    $('#submitBtn').bind
     (
+        'click',
+        function ()
         {
-            url : '/ajaxTest', //请求的url
-            type : 'GET', //以何种方法发送报文
-            dataType : 'json', //预期的服务器返回的数据类型
-            headers:
-            {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' //发送的报文的MIME类型
-            },
-            success : function () //请求成功执行的访求
-            {
-                console.log('请求成功');
-            },
-            error : function () //请求失败执行的方法
-            {
-                console.log('请求失败');
-            }
+            let files = $('#fileInput').prop('files');
+            let data = new FormData();
+            data.append('file', files[0]);
+
+            $.ajax
+            (
+                {
+                    url : '/upload-calc',
+                    type : 'POST',
+                    dataType : 'json',
+                    data: data,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success : function (resp)
+                    {
+                        let dataList = resp.data; // 坐标数据
+                        drawUp(dataList);
+                    },
+                    error : function ()
+                    {
+                        console.log('请求失败');
+                    }
+                }
+            );
         }
     );
 }
 
-
-
-
-function drawUp()
+/**
+ * 画整个图像
+ * @param dataList 坐标数据
+ */
+function drawUp(dataList)
 {
+    console.log("这是列表数据：", dataList);
+
     let canvasDom = document.getElementById("myCanvas");
     let context = canvasDom.getContext("2d");
 
+    // 画坐标
     drawLine(context);
-    drawOneCircle(275, 88, context);
-    drawOneCircle(150, 50, context);
+    for (let el of dataList)
+    {
+        drawOneCircle(el.index, el.r, context);
+    }
 }
 
 

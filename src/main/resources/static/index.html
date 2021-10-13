@@ -1,29 +1,39 @@
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <title>首页</title>
 
-    <title>首页</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <style>
-        html,body
-        {
-            height: 100%;
-            width: 100%;
-        }
-        canvas
-        {
-            display: block;
-            border: black dashed 1px;
-        }
-    </style>
-</head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<body>
-    <canvas id="myCanvas" width="3000" height="800"></canvas>
-    <script type="text/javascript" src="./index.js"></script>
-</body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
+            body
+            {
+                padding: 10px;
+            }
+            canvas
+            {
+                display: block;
+                border: black dashed 1px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <form class="form-inline">
+            <input id="fileInput" type="file" class="form-control" placeholder="token字符串"/>&nbsp;&nbsp;
+            <button id="submitBtn" type="button" class="btn btn-primary">提交</button>
+        </form>
+
+        <canvas id="myCanvas" width="3000" height="800"></canvas>
+        <script type="text/javascript" src="./index.js"></script>
+
+        <div id="circleData">
+            第1个圆：<kbd>index=3</kbd> <kbd>r=5</kbd>
+        </div>
+    </body>
 
 </html>
