@@ -17,4 +17,9 @@ public class CircleVo
      * 圆的半径
      */
     private Integer r;
+
+    /**
+     * 这个圆最右边的坐标
+     */
+    private Integer rightIndex;
 }

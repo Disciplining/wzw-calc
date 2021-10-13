@@ -4,6 +4,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.unit.DataUnit;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.math.MathUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
@@ -18,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.IIOException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,8 +62,6 @@ public class FunService
                 }
             }
         ).sheet().doRead();
-        Console.log("获得到数据：");
-        dataList.forEach(Console::log);
 
         // ③关闭输入流
         if (Objects.nonNull(inputStream))
@@ -74,6 +76,128 @@ public class FunService
             }
         }
 
+        // ④转换为map
+        Map<Integer, Integer> dataMap = this.list2map(dataList);
+
+        // ⑤计算圆
+        List<CircleVo> circleList = CollUtil.newArrayList();
+        CircleVo headCirc = new CircleVo(); // 放置第一个圆
+        headCirc.setR(dataMap.get(dataList.get(0).getPoint()));
+        headCirc.setIndex(8 + headCirc.getR());
+        headCirc.setRightIndex(headCirc.getIndex() + headCirc.getR());
+        circleList.add(headCirc);
+        while (true)
+        {
+            CircleVo nextCirc = getNextCirc(circleList.get(circleList.size() - 1), dataMap);
+            if (Objects.isNull(nextCirc))
+            {
+                break;
+            }
+            else
+            {
+                circleList.add(nextCirc);
+            }
+        }
+
+        return CommonResult.successData(circleList);
+    }
+
+    /**
+     * 将读取的数据转换成list，以取样点为k，取样点对应的半径为v.
+     * @param dataItemList list
+     * @return map
+     */
+    private Map<Integer, Integer> list2map(List<ExcelDataItem> dataItemList)
+    {
+        Map<Integer, Integer> dataMap = MapUtil.newHashMap(dataItemList.size());
+
+        for (ExcelDataItem el : dataItemList)
+        {
+            BigDecimal sum = NumberUtil.add(el.getSample1(), el.getSample2(), el.getSample3(), el.getSample4());
+            long value = Math.round(NumberUtil.div(sum, 4).doubleValue());
+            dataMap.put(el.getPoint(), (int) value);
+        }
+
+        return dataMap;
+    }
+
+    /**
+     * 计算下一个圆
+     * @param preCirc    上一个圆
+     * @param dataMap    数据map
+     * @return 计算出的圆，返回null的话说明都找完了.
+     */
+    private CircleVo getNextCirc(final CircleVo preCirc, Map<Integer, Integer> dataMap)
+    {
+        int rightIndex = preCirc.getRightIndex();
+
+        for (int i = rightIndex+1; i <= Integer.MAX_VALUE; i++)
+        {
+            if (Objects.isNull(dataMap.get(i)))
+            {
+                return null;
+            }
+
+            if (Objects.isNull(dataMap.get(i+1))) // i是最后一个圆
+            {
+                CircleVo theCircle = new CircleVo();
+                theCircle.setIndex(i);
+                theCircle.setR(dataMap.get(i));
+                theCircle.setRightIndex(i + dataMap.get(i));
+
+                if (calcPos(theCircle, preCirc) == 1)
+                {
+                    return theCircle;
+                }
+            }
+            else // i不是最后一个圆
+            {
+                CircleVo firstCirc = new CircleVo();
+                firstCirc.setIndex(i);
+                firstCirc.setR(dataMap.get(i));
+                firstCirc.setRightIndex(i + dataMap.get(i));
+
+                CircleVo secondCirc = new CircleVo();
+                secondCirc.setIndex(i+1);
+                secondCirc.setR(dataMap.get(i+1));
+                secondCirc.setRightIndex((i+1) + dataMap.get(i+1));
+
+                if (calcPos(preCirc, firstCirc) == 1)
+                {
+                    return firstCirc;
+                }
+                else if (calcPos(preCirc, firstCirc)==0 && calcPos(preCirc, secondCirc)==2)
+                {
+                    return firstCirc;
+                }
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * 判断两个圆的位置
+     * @param c1 第一个圆
+     * @param c2 第二个圆
+     * @return 0-相交 1-相切 2-相离
+     */
+    private int calcPos(CircleVo c1, CircleVo c2)
+    {
+        int pointDis = Math.abs(c1.getIndex() - c2.getIndex()); // 圆心距离
+        int rDis = c1.getR() + c2.getR(); // 两个半径距离相加
+
+        if (pointDis < rDis)
+        {
+            return 0;
+        }
+        else if (pointDis == rDis)
+        {
+            return 1;
+        }
+        else
+        {
+            return 2;
+        }
     }
 }
