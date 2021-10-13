@@ -1,4 +1,4 @@
-let y = 400; // 固定y坐标
+let y = 350; // 固定y坐标
 
 $
 (
@@ -7,7 +7,6 @@ $
         submitBtnBind()
     }
 );
-
 
 /**
  * 提交按钮绑定事件
@@ -37,6 +36,7 @@ function submitBtnBind()
                     {
                         let dataList = resp.data; // 坐标数据
                         drawUp(dataList);
+                        setCircleData(dataList);
                     },
                     error : function ()
                     {
@@ -54,8 +54,6 @@ function submitBtnBind()
  */
 function drawUp(dataList)
 {
-    console.log("这是列表数据：", dataList);
-
     let canvasDom = document.getElementById("myCanvas");
     let context = canvasDom.getContext("2d");
 
@@ -66,10 +64,6 @@ function drawUp(dataList)
         drawOneCircle(el.index, el.r, context);
     }
 }
-
-
-
-
 
 /**
  * 画一维坐标轴
@@ -145,4 +139,23 @@ function basisDrawPoint(x, isFirst, ctx)
     ctx.lineWidth = 1;
     ctx.fillStyle = 'black';
     ctx.fill();
+}
+
+/**
+ * 显示圆形数据
+ * @param dataList 数据
+ */
+function setCircleData(dataList)
+{
+    let htmlTxt = '';
+    for (let i in dataList)
+    {
+        let el = dataList[i];
+        let n = parseInt(i) + 1;
+        htmlTxt = htmlTxt + '第' + n + '个圆<kbd>index=' + el.index + '</kbd> <kbd>r=' + el.r + '</kbd><br/><br/>'
+    }
+
+    console.log('这是str, ', htmlTxt);
+
+    $('#circleData').html(htmlTxt);
 }
