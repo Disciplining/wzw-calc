@@ -1,7 +1,7 @@
 package com.wzw.controller;
 
 import com.wzw.common.CommonResult;
-import com.wzw.entity.CircleVo;
+import com.wzw.entity.Circle;
 import com.wzw.service.FunService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +22,7 @@ public class FunController
      * @return 计算出的数据
      */
     @PostMapping("/upload-calc")
-    private CommonResult<List<CircleVo>> uploadFileAndCalc(MultipartFile file)
+    private CommonResult<List<Circle>> uploadFileAndCalc(MultipartFile file)
     {
         return funService.uploadFileAndCalc(file);
     }

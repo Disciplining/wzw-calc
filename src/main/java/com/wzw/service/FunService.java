@@ -1,24 +1,17 @@
 package com.wzw.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.unit.DataUnit;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.math.MathUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.alibaba.excel.metadata.CellExtra;
-import com.alibaba.excel.read.listener.ReadListener;
 import com.wzw.common.CommonResult;
-import com.wzw.entity.CircleVo;
+import com.wzw.entity.Circle;
 import com.wzw.entity.ExcelDataItem;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.IIOException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -29,7 +22,7 @@ import java.util.Objects;
 @Service
 public class FunService
 {
-    public CommonResult<List<CircleVo>> uploadFileAndCalc(MultipartFile file)
+    public CommonResult<List<Circle>> uploadFileAndCalc(MultipartFile file)
     {
         // ①获取文件输入流
         InputStream inputStream;
@@ -80,15 +73,15 @@ public class FunService
         Map<Integer, Integer> dataMap = this.list2map(dataList);
 
         // ⑤计算圆
-        List<CircleVo> circleList = CollUtil.newArrayList();
-        CircleVo headCirc = new CircleVo(); // 放置第一个圆
+        List<Circle> circleList = CollUtil.newArrayList();
+        Circle headCirc = new Circle(); // 放置第一个圆
         headCirc.setR(dataMap.get(dataList.get(0).getPoint()));
         headCirc.setIndex(8 + headCirc.getR());
         headCirc.setRightIndex(headCirc.getIndex() + headCirc.getR());
         circleList.add(headCirc);
         while (true)
         {
-            CircleVo nextCirc = getNextCirc(circleList.get(circleList.size() - 1), dataMap);
+            Circle nextCirc = getNextCirc(circleList.get(circleList.size() - 1), dataMap);
             if (Objects.isNull(nextCirc))
             {
                 break;
@@ -127,7 +120,7 @@ public class FunService
      * @param dataMap    数据map
      * @return 计算出的圆，返回null的话说明都找完了.
      */
-    private CircleVo getNextCirc(final CircleVo preCirc, Map<Integer, Integer> dataMap)
+    private Circle getNextCirc(final Circle preCirc, Map<Integer, Integer> dataMap)
     {
         int rightIndex = preCirc.getRightIndex();
 
@@ -140,7 +133,7 @@ public class FunService
 
             if (Objects.isNull(dataMap.get(i+1))) // i是最后一个圆
             {
-                CircleVo theCircle = new CircleVo();
+                Circle theCircle = new Circle();
                 theCircle.setIndex(i);
                 theCircle.setR(dataMap.get(i));
                 theCircle.setRightIndex(i + dataMap.get(i));
@@ -152,12 +145,12 @@ public class FunService
             }
             else // i不是最后一个圆
             {
-                CircleVo firstCirc = new CircleVo();
+                Circle firstCirc = new Circle();
                 firstCirc.setIndex(i);
                 firstCirc.setR(dataMap.get(i));
                 firstCirc.setRightIndex(i + dataMap.get(i));
 
-                CircleVo secondCirc = new CircleVo();
+                Circle secondCirc = new Circle();
                 secondCirc.setIndex(i+1);
                 secondCirc.setR(dataMap.get(i+1));
                 secondCirc.setRightIndex((i+1) + dataMap.get(i+1));
@@ -182,7 +175,7 @@ public class FunService
      * @param c2 第二个圆
      * @return 0-相交 1-相切 2-相离
      */
-    private int calcPos(CircleVo c1, CircleVo c2)
+    private int calcPos(Circle c1, Circle c2)
     {
         int pointDis = Math.abs(c1.getIndex() - c2.getIndex()); // 圆心距离
         int rDis = c1.getR() + c2.getR(); // 两个半径距离相加

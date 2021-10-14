@@ -6,7 +6,7 @@ import lombok.Data;
  * 一个圆
  */
 @Data
-public class CircleVo
+public class Circle
 {
     /**
      * 圆心位置

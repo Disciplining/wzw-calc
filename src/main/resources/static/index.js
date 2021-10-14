@@ -19,6 +19,12 @@ function submitBtnBind()
         function ()
         {
             let files = $('#fileInput').prop('files');
+            if (files.length === 0)
+            {
+                alert('必须选择文件');
+                return;
+            }
+
             let data = new FormData();
             data.append('file', files[0]);
 
