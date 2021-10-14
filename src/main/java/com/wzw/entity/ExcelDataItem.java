@@ -23,4 +23,10 @@ public class ExcelDataItem
 
     @ExcelProperty("样本4")
     private Double sample4;
+
+    @ExcelProperty("样本5")
+    private Double sample5;
+
+    @ExcelProperty("样本6")
+    private Double sample6;
 }

@@ -81,7 +81,7 @@ public class FunService
         circleList.add(headCirc);
         while (true)
         {
-            Circle nextCirc = getNextCirc(circleList.get(circleList.size() - 1), dataMap);
+            Circle nextCirc = this.getNextCirc(circleList.get(circleList.size() - 1), dataMap);
             if (Objects.isNull(nextCirc))
             {
                 break;
@@ -106,8 +106,8 @@ public class FunService
 
         for (ExcelDataItem el : dataItemList)
         {
-            BigDecimal sum = NumberUtil.add(el.getSample1(), el.getSample2(), el.getSample3(), el.getSample4());
-            long value = Math.round(NumberUtil.div(sum, 4).doubleValue());
+            BigDecimal sum = NumberUtil.add(el.getSample1(), el.getSample2(), el.getSample3(), el.getSample4(), el.getSample5(), el.getSample6());
+            long value = Math.round(NumberUtil.div(sum, 6).doubleValue());
             dataMap.put(el.getPoint(), (int) value);
         }
 
