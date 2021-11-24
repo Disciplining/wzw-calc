@@ -15,9 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class FunService
@@ -74,7 +76,7 @@ public class FunService
 
         // ⑤计算圆
         List<Circle> circleList = CollUtil.newArrayList();
-        Circle headCirc = new Circle(); // 放置第一个圆
+        Circle headCirc = new Circle(); // 放置第一个圆，第一个圆的圆心不是excel文件中的是计算出来的，后边的圆圆心是excel文件中的.
         headCirc.setR(dataMap.get(dataList.get(0).getPoint()));
         headCirc.setIndex(8 + headCirc.getR());
         headCirc.setRightIndex(headCirc.getIndex() + headCirc.getR());
@@ -115,57 +117,50 @@ public class FunService
     }
 
     /**
-     * 计算下一个圆
+     * 在所有的圆中找下一个圆
      * @param preCirc    上一个圆
      * @param dataMap    数据map
-     * @return 计算出的圆，返回null的话说明都找完了.
+     * @return 计算出的圆，有可能为null. 返回null，说明程序寻找结束.
      */
     private Circle getNextCirc(final Circle preCirc, Map<Integer, Integer> dataMap)
     {
+        // ①找相切与相交的圆
+        List<Circle> tangentialCircleList = CollUtil.newArrayList();
+        List<Circle> intersectCircleExtendList = CollUtil.newArrayList();
         int rightIndex = preCirc.getRightIndex();
-
-        for (int i = rightIndex+1; i <= Integer.MAX_VALUE; i++)
+        for (int i = rightIndex+1; i<= 420; i++)
         {
-            if (Objects.isNull(dataMap.get(i)))
+            Circle theCircle = new Circle();
+            theCircle.setIndex(i);
+            theCircle.setR(dataMap.get(i));
+            theCircle.setRightIndex(i + dataMap.get(i));
+
+            if (this.calcPos(preCirc, theCircle) == 0)
             {
-                return null;
+                tangentialCircleList.add(theCircle);
             }
-
-            if (Objects.isNull(dataMap.get(i+1))) // i是最后一个圆
+            else if (this.calcPos(preCirc, theCircle) > 0)
             {
-                Circle theCircle = new Circle();
-                theCircle.setIndex(i);
-                theCircle.setR(dataMap.get(i));
-                theCircle.setRightIndex(i + dataMap.get(i));
-
-                if (calcPos(theCircle, preCirc) == 1)
-                {
-                    return theCircle;
-                }
-            }
-            else // i不是最后一个圆
-            {
-                Circle firstCirc = new Circle();
-                firstCirc.setIndex(i);
-                firstCirc.setR(dataMap.get(i));
-                firstCirc.setRightIndex(i + dataMap.get(i));
-
-                Circle secondCirc = new Circle();
-                secondCirc.setIndex(i+1);
-                secondCirc.setR(dataMap.get(i+1));
-                secondCirc.setRightIndex((i+1) + dataMap.get(i+1));
-
-                if (calcPos(preCirc, firstCirc) == 1)
-                {
-                    return firstCirc;
-                }
-                else if (calcPos(preCirc, firstCirc)==0 && calcPos(preCirc, secondCirc)==2)
-                {
-                    return firstCirc;
-                }
+                intersectCircleExtendList.add(theCircle);
             }
         }
 
+        // ②有相切的，返回相切当中半径最大的.
+        if (CollUtil.isNotEmpty(tangentialCircleList))
+        {
+            Collections.sort(tangentialCircleList);
+            return tangentialCircleList.get(0);
+        }
+
+
+        // ②没有相切的，返回相交的当中半径最大的.
+        if (CollUtil.isNotEmpty(intersectCircleExtendList))
+        {
+            Collections.sort(intersectCircleExtendList);
+            return intersectCircleExtendList.get(0);
+        }
+
+        // ③即没有相切的，又没有相交的，返回null.
         return null;
     }
 
@@ -173,24 +168,15 @@ public class FunService
      * 判断两个圆的位置
      * @param c1 第一个圆
      * @param c2 第二个圆
-     * @return 0-相交 1-相切 2-相离
+     * @return >0，两个圆相交，数值越大表示两个圆相交的部分越多.
+     *         =0，两个圆相切
+     *         <0，两个圆相离，数值越小表示两个圆越离得越远.
      */
-    private int calcPos(Circle c1, Circle c2)
+    private long calcPos(Circle c1, Circle c2)
     {
-        int pointDis = Math.abs(c1.getIndex() - c2.getIndex()); // 圆心距离
-        int rDis = c1.getR() + c2.getR(); // 两个半径距离相加
+        long pointDis = Math.abs(c1.getIndex() - c2.getIndex()); // 圆心距离
+        long rDis = c1.getR() + c2.getR(); // 两个半径距离相加
 
-        if (pointDis < rDis)
-        {
-            return 0;
-        }
-        else if (pointDis == rDis)
-        {
-            return 1;
-        }
-        else
-        {
-            return 2;
-        }
+        return rDis - pointDis;
     }
 }

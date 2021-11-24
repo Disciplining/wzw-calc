@@ -6,7 +6,7 @@ import lombok.Data;
  * 一个圆
  */
 @Data
-public class Circle
+public class Circle implements Comparable
 {
     /**
      * 圆心位置
@@ -22,4 +22,15 @@ public class Circle
      * 这个圆最右边的坐标
      */
     private Integer rightIndex;
+
+    @Override
+    public int compareTo(Object o)
+    {
+        if (!(o instanceof Circle))
+        {
+            return 0;
+        }
+
+        return  ((Circle) o).getR() - this.r;
+    }
 }

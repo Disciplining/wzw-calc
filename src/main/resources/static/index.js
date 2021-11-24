@@ -1,4 +1,5 @@
 let y = 350; // 固定y坐标
+let count = 0; // 画第几个圆，用于颜色设置.
 
 $
 (
@@ -63,6 +64,8 @@ function drawUp(dataList)
     let canvasDom = document.getElementById("myCanvas");
     let context = canvasDom.getContext("2d");
 
+    context.clearRect(0, 0, canvasDom.width, canvasDom.height);
+
     // 画坐标
     drawLine(context);
     for (let el of dataList)
@@ -101,9 +104,18 @@ function drawLine(ctx)
 function drawOneCircle(x, r, ctx)
 {
     // ①画圆形
+    count++;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2*Math.PI);
     ctx.lineWidth = 1;
+    if (count % 2 == 0)
+    {
+        ctx.strokeStyle = 'rgb(255, 0,0 )';
+    }
+    else
+    {
+        ctx.strokeStyle = 'rgb(0, 0,0 )';
+    }
     ctx.stroke();
     ctx.closePath();
 
@@ -160,8 +172,6 @@ function setCircleData(dataList)
         let n = parseInt(i) + 1;
         htmlTxt = htmlTxt + '第' + n + '个圆<kbd>index=' + el.index + '</kbd> <kbd>r=' + el.r + '</kbd><br/><br/>'
     }
-
-    console.log('这是str, ', htmlTxt);
 
     $('#circleData').html(htmlTxt);
 }
