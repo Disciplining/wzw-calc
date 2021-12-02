@@ -41,6 +41,11 @@ function submitBtnBind()
                     contentType: false,
                     success : function (resp)
                     {
+                        if (!resp.success)
+                        {
+                            alert(resp.msg);
+                            return;
+                        }
                         let dataList = resp.data; // 坐标数据
                         drawUp(dataList);
                         setCircleData(dataList);

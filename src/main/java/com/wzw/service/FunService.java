@@ -130,18 +130,21 @@ public class FunService
         int rightIndex = preCirc.getRightIndex();
         for (int i = rightIndex+1; i<= 420; i++)
         {
-            Circle theCircle = new Circle();
-            theCircle.setIndex(i);
-            theCircle.setR(dataMap.get(i));
-            theCircle.setRightIndex(i + dataMap.get(i));
+            if (Objects.nonNull(dataMap.get(i)))
+            {
+                Circle theCircle = new Circle();
+                theCircle.setIndex(i);
+                theCircle.setR(dataMap.get(i));
+                theCircle.setRightIndex(i + dataMap.get(i));
 
-            if (this.calcPos(preCirc, theCircle) == 0)
-            {
-                tangentialCircleList.add(theCircle);
-            }
-            else if (this.calcPos(preCirc, theCircle) > 0)
-            {
-                intersectCircleExtendList.add(theCircle);
+                if (this.calcPos(preCirc, theCircle) == 0)
+                {
+                    tangentialCircleList.add(theCircle);
+                }
+                else if (this.calcPos(preCirc, theCircle) > 0)
+                {
+                    intersectCircleExtendList.add(theCircle);
+                }
             }
         }
 
